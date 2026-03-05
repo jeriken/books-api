@@ -50,12 +50,20 @@ class BookController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        $title  = $request->json('title');
+        $author = $request->json('author');
+        $year   = $request->json('year');
+
+        if (empty($title) || empty($author) || empty($year)) {
+            return response()->json(['error' => 'title, author, and year are required'], 400);
+        }
+
         $books = $this->getBooks();
         $book = [
             'id'     => count($books) > 0 ? max(array_column($books, 'id')) + 1 : 1,
-            'title'  => $request->json('title'),
-            'author' => $request->json('author'),
-            'year'   => $request->json('year'),
+            'title'  => $title,
+            'author' => $author,
+            'year'   => $year,
         ];
         $books[] = $book;
         $this->saveBooks($books);
