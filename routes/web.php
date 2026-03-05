@@ -13,10 +13,6 @@ Route::get('/', function () {
 
 // Lean routes — no session/cookie overhead
 Route::withoutMiddleware([StartSession::class, EncryptCookies::class])->group(function () {
-    Route::get('/ping', function () {
-        return response()->json(['success' => true], 200);
-    });
-
     Route::post('/echo', function (Request $request) {
         return response()->json((object) $request->json()->all(), 200);
     });
