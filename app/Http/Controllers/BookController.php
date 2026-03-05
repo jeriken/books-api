@@ -42,15 +42,7 @@ class BookController extends Controller
         if ($request->has('page') || $request->has('limit')) {
             $page  = max(1, (int) $request->query('page', 1));
             $limit = max(1, (int) $request->query('limit', 10));
-            $total = count($books);
             $books = array_values(array_slice($books, ($page - 1) * $limit, $limit));
-
-            return response()->json([
-                'data'  => $books,
-                'page'  => $page,
-                'limit' => $limit,
-                'total' => $total,
-            ], 200);
         }
 
         return response()->json($books, 200);
