@@ -7,33 +7,33 @@ use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
-    private function booksPath(): string
+    private function getStoragePath(): string
     {
         return storage_path('app/books.json');
     }
 
-    private function readBooks(): array
+    private function getBooks(): array
     {
-        $path = $this->booksPath();
+        $path = $this->getStoragePath();
         if (!file_exists($path)) {
             return [];
         }
         return json_decode(file_get_contents($path), true) ?? [];
     }
 
-    private function writeBooks(array $books): void
+    private function saveBooks(array $books): void
     {
-        file_put_contents($this->booksPath(), json_encode(array_values($books), JSON_PRETTY_PRINT));
+        file_put_contents($this->getStoragePath(), json_encode(array_values($books), JSON_PRETTY_PRINT));
     }
 
     public function index(): JsonResponse
     {
-        return response()->json($this->readBooks(), 200);
+        return response()->json($this->getBooks(), 200);
     }
 
     public function store(Request $request): JsonResponse
     {
-        $books = $this->readBooks();
+        $books = $this->getBooks();
         $book = [
             'id'     => count($books) > 0 ? max(array_column($books, 'id')) + 1 : 1,
             'title'  => $request->json('title'),
@@ -41,13 +41,13 @@ class BookController extends Controller
             'year'   => $request->json('year'),
         ];
         $books[] = $book;
-        $this->writeBooks($books);
+        $this->saveBooks($books);
         return response()->json($book, 201);
     }
 
     public function show(int $id): JsonResponse
     {
-        foreach ($this->readBooks() as $book) {
+        foreach ($this->getBooks() as $book) {
             if ((int) $book['id'] === $id) {
                 return response()->json($book, 200);
             }
@@ -57,13 +57,13 @@ class BookController extends Controller
 
     public function update(Request $request, int $id): JsonResponse
     {
-        $books = $this->readBooks();
+        $books = $this->getBooks();
         foreach ($books as &$book) {
             if ((int) $book['id'] === $id) {
                 $book['title']  = $request->json('title', $book['title']);
                 $book['author'] = $request->json('author', $book['author']);
                 $book['year']   = $request->json('year', $book['year']);
-                $this->writeBooks($books);
+                $this->saveBooks($books);
                 return response()->json($book, 200);
             }
         }
@@ -72,11 +72,11 @@ class BookController extends Controller
 
     public function destroy(int $id): JsonResponse
     {
-        $books = $this->readBooks();
+        $books = $this->getBooks();
         foreach ($books as $index => $book) {
             if ((int) $book['id'] === $id) {
                 unset($books[$index]);
-                $this->writeBooks($books);
+                $this->saveBooks($books);
                 return response()->json(['success' => true], 200);
             }
         }
