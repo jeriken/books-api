@@ -12,5 +12,5 @@ Route::get('/ping', function () {
 });
 
 Route::post('/echo', function (Request $request) {
-    return response()->json($request->json()->all(), 200);
+    return response()->json((object) $request->json()->all(), 200);
 });
