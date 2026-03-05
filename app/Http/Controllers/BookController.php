@@ -55,4 +55,32 @@ class BookController extends Controller
         return response()->json(['error' => 'Book not found'], 404);
     }
 
+    public function update(Request $request, int $id): JsonResponse
+    {
+        $books = $this->readBooks();
+        foreach ($books as &$book) {
+            if ((int) $book['id'] === $id) {
+                $book['title']  = $request->json('title', $book['title']);
+                $book['author'] = $request->json('author', $book['author']);
+                $book['year']   = $request->json('year', $book['year']);
+                $this->writeBooks($books);
+                return response()->json($book, 200);
+            }
+        }
+        return response()->json(['error' => 'Book not found'], 404);
+    }
+
+    public function destroy(int $id): JsonResponse
+    {
+        $books = $this->readBooks();
+        foreach ($books as $index => $book) {
+            if ((int) $book['id'] === $id) {
+                unset($books[$index]);
+                $this->writeBooks($books);
+                return response()->json(['success' => true], 200);
+            }
+        }
+        return response()->json(['error' => 'Book not found'], 404);
+    }
+
 }
