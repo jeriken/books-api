@@ -5,6 +5,16 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
+// Fast-path /ping before Laravel boots (avoids cold-start latency)
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'GET') {
+    $path = strtok($_SERVER['REQUEST_URI'] ?? '', '?');
+    if (rtrim($path, '/') === '/ping' || $path === '/ping') {
+        header('Content-Type: application/json');
+        echo '{"success":true}';
+        exit;
+    }
+}
+
 // Determine if the application is in maintenance mode...
 if (file_exists($maintenance = __DIR__.'/storage/framework/maintenance.php')) {
     require $maintenance;
