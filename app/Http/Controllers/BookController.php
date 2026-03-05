@@ -70,21 +70,21 @@ class BookController extends Controller
         return response()->json($book, 201);
     }
 
-    public function show(int $id): JsonResponse
+    public function show(string $id): JsonResponse
     {
         foreach ($this->getBooks() as $book) {
-            if ((int) $book['id'] === $id) {
+            if ((string) $book['id'] === $id) {
                 return response()->json($book, 200);
             }
         }
         return response()->json(['error' => 'Book not found'], 404);
     }
 
-    public function update(Request $request, int $id): JsonResponse
+    public function update(Request $request, string $id): JsonResponse
     {
         $books = $this->getBooks();
         foreach ($books as &$book) {
-            if ((int) $book['id'] === $id) {
+            if ((string) $book['id'] === $id) {
                 $book['title']  = $request->json('title', $book['title']);
                 $book['author'] = $request->json('author', $book['author']);
                 $book['year']   = $request->json('year', $book['year']);
@@ -95,11 +95,11 @@ class BookController extends Controller
         return response()->json(['error' => 'Book not found'], 404);
     }
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(string $id): JsonResponse
     {
         $books = $this->getBooks();
         foreach ($books as $index => $book) {
-            if ((int) $book['id'] === $id) {
+            if ((string) $book['id'] === $id) {
                 unset($books[$index]);
                 $this->saveBooks($books);
                 return response()->json(['success' => true], 200);
